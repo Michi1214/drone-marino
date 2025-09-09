@@ -1,0 +1,87 @@
+version: "3.9"
+
+name: drone-marino
+
+secrets:
+  jwt_public.pem:
+    file: ./keys/jwtRS256.key.pub
+  jwt_private.pem:
+    file: ./keys/jwtRS256.key   # in DEV va bene. In prod usa un secrets manager.
+
+volumes:
+  pgdata: {}
+
+services:
+  db:
+    image: postgres:16
+    container_name: drone-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-drone}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dronepwd}
+      POSTGRES_DB: ${POSTGRES_DB:-dronedb}
+    #ports:
+    #  - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-drone} -d ${POSTGRES_DB:-dronedb}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # GUI DB FACOLTATIVA: abilitala se vuoi
+  adminer:
+    image: adminer:4
+    container_name: drone-adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: drone-api
+    restart: unless-stopped
+    # Carica anche da .env nella root (PORT, regole business, ecc.)
+    env_file:
+      - .env
+    environment:
+      # Connessione DB (Sequelize può usare questi oppure una DATABASE_URL)
+      DB_HOST: db
+      DB_PORT: ${POSTGRES_PORT:-5432}
+      DB_USER: ${POSTGRES_USER:-drone}
+      DB_PASS: ${POSTGRES_PASSWORD:-dronepwd}
+      DB_NAME: ${POSTGRES_DB:-dronedb}
+
+      # JWT: dove leggere le chiavi montate come secrets
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/jwt_public.pem}
+      JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/run/secrets/jwt_private.pem}
+      JWT_ALGO: ${JWT_ALGO:-RS256}
+      JWT_ISS: ${JWT_ISS:-drone-backend}
+      JWT_AUD: ${JWT_AUD:-drone-clients}
+
+      # Porta dell'API
+      API_PORT: ${API_PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-development}
+      TZ: ${TZ:-UTC}
+
+      # Business rules
+      TOKEN_COST_CREATE_PLAN: ${TOKEN_COST_CREATE_PLAN:-2}
+      TOKEN_COST_REQUEST: ${TOKEN_COST_REQUEST:-5}
+      MIN_HOURS_BEFORE_NAV: ${MIN_HOURS_BEFORE_NAV:-48}
+
+      # Export default
+      DEFAULT_EXPORT_FORMAT: ${DEFAULT_EXPORT_FORMAT:-json}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    secrets:
+      - jwt_public.pem
+      - jwt_private.pem

@@ -1,0 +1,21 @@
+# node / build
+node_modules/
+dist/
+npm-debug.log*
+
+# docker
+*.local
+*.env.local
+*.env.*.local
+# non committare l'env di runtime
+.env
+
+# chiavi e segreti
+keys/jwtRS256.key        # PRIVATA: MAI su git
+# ok committare solo la PUBBLICA se vuoi
+# keys/jwtRS256.key.pub
+
+# editor / os
+.DS_Store
+.vscode/
+.idea/
