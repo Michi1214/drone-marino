@@ -57,6 +57,7 @@ services:
       DB_USER: ${POSTGRES_USER:-drone}
       DB_PASS: ${POSTGRES_PASSWORD:-dronepwd}
       DB_NAME: ${POSTGRES_DB:-dronedb}
+      DATABASE_URL: postgres://${POSTGRES_USER:-drone}:${POSTGRES_PASSWORD:-dronepwd}@db:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-dronedb}
 
       # JWT: dove leggere le chiavi montate come secrets
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/jwt_public.pem}

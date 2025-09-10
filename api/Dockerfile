@@ -9,6 +9,7 @@ RUN npm install
 # Copio il resto dei sorgenti
 COPY tsconfig.json ./tsconfig.json
 COPY src ./src
+COPY sequelize ./sequelize
 
 # Compilo TS -> JS (dist/)
 RUN npm run build
@@ -24,6 +25,7 @@ RUN npm install --omit=dev
 
 # Copio il build
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/sequelize ./sequelize
 
 # Porta di ascolto (match con API_PORT)
 EXPOSE 3000

@@ -1,24 +1,28 @@
 import express from "express";
 import dotenv from "dotenv";
+import publicRoutes from "./routes/public";
+import areaRoutes from "./routes/areas";
+import requestRoutes from "./routes/requests";
+import { errorHandler } from "./middleware/errorHandler";
+import { requestLogger } from "./middleware/requestLogger";
 
-dotenv.config(); // legge valori da env (in Docker passati via compose)
+dotenv.config();
 
 const app = express();
-
-// Middleware base
 app.use(express.json());
 
-// Healthcheck
-app.get("/healthz", (_req, res) => {
-  res.status(200).json({ status: "ok" });
-});
+// 🔎 logger PRIMA delle route (così logga tutto, anche /healthz)
+app.use(requestLogger);
 
-// Rotta pubblica placeholder per aree vietate
-app.get("/v1/areas/public", (_req, res) => {
-  res.json({
-    items: [],
-    note: "Placeholder - qui ritorneremo le aree vietate dal DB"
-  });
-});
+// health
+app.get("/healthz", (_req, res) => res.status(200).json({ status: "ok" }));
+
+// routes
+app.use(publicRoutes);
+app.use(requestRoutes);
+app.use(areaRoutes);
+
+// ❗️ error handler SEMPRE per ultimo
+app.use(errorHandler);
 
 export default app;
