@@ -1,6 +1,6 @@
 version: "3.9"
 
-name: drone-marino
+#name: drone-marino
 
 secrets:
   jwt_public.pem:
@@ -20,8 +20,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-drone}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dronepwd}
       POSTGRES_DB: ${POSTGRES_DB:-dronedb}
-    #ports:
-    #  - "${POSTGRES_PORT:-5432}:5432"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

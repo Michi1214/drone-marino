@@ -8,7 +8,7 @@ npm-debug.log*
 *.env.local
 *.env.*.local
 # non committare l'env di runtime
-.env
+#.env
 
 # chiavi e segreti
 keys/jwtRS256.key        # PRIVATA: MAI su git
