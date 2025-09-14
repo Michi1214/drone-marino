@@ -34,7 +34,7 @@ Backend per la gestione dei piani di navigazione di un drone marino, con ruoli *
 ## 📦 Clona il progetto
 
 ```bash
-git clone https://github.com/MichelaCarletti12/drone-marino.git
+git clone https://github.com/Michi1214/drone-marino.git
 cd drone-marino
 ```
 

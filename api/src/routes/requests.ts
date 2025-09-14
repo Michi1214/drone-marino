@@ -37,7 +37,7 @@ r.post("/v1/requests", auth, requireRole("user"), enforceTokens, async (req, res
     if (routeHitsAnyRect(route as Pt[], rects)) throw { status: 422, code: "FORBIDDEN_ROUTE", message: "route crosses a forbidden area" };
 
     // Addebito token + creazione richiesta atomica
-    const cost = Number(process.env.TOKEN_COST_CREATE_PLAN || 2);
+    const cost = Number(process.env.TOKEN_COST_REQUEST || 5);
     const user = await User.findOne({ where: { email: req.user!.email }, transaction: t, lock: t.LOCK.UPDATE });
     if (!user) throw { status: 401, code: "UNAUTHORIZED" };
     if (user.tokens < cost) throw { status: 401, code: "UNAUTHORIZED", message: "Not enough tokens" };
