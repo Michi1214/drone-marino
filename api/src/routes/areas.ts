@@ -7,6 +7,28 @@ const r = Router();
 
 // NIENTE r.use(...) globale senza path
 
+// [O] Get all areas
+r.get("/v1/areas", auth, async (req, res, next) => {
+  try {
+    const areas = await Area.findAll();
+    res.json(areas);
+  } catch (e) {
+    next(e);
+  }
+});
+
+// [O] Get area by ID
+r.get("/v1/areas/:id", auth, async (req, res, next) => {
+  try {
+    const area = await Area.findByPk(req.params.id);
+    if (!area) return res.status(404).json({ error: "NOT_FOUND" });
+    res.json(area);
+  } catch (e) {
+    next(e);
+  }
+});
+
+
 // [O] Create area
 r.post("/v1/areas", auth, requireRole("operator"), async (req, res, next) => {
   try {
